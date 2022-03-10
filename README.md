@@ -19,6 +19,7 @@
 1. Получите Oauth-токен доступа для Облака используя документацию: https://cloud.yandex.ru/docs/iam/concepts/authorization/oauth-token
 
 2. Добавьте секрет в локбокс. Для создания иерархии используйте какой-либо допустимый символ-разделитель.
+  
 ![добавление секрета](https://github.com/a-postx/Delobytes.Extensions.Configuration/blob/main/add-lockbox-secret-ru.png)
 
 3. После создания вам станет доступен идентификатор секрета, его можно добавить в настройки приложения (appsettings.json):

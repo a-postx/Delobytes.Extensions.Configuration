@@ -1,5 +1,5 @@
 # Delobytes.Extensions.Configuration
-.Net configuration extensions for configuration/secrets providers. Package allows to use the following third-party providers as a configuration source for your dotnet application (via Microsoft.Extensions.Configuration):
+.Net configuration extensions for configuration/secrets providers. Package allows to use the following third-party providers as a configuration source for your .NetCore application (via Microsoft.Extensions.Configuration):
 - Yandex.Cloud Lockbox
 - AWS AppConfig
 
@@ -19,6 +19,7 @@ Add configuration/secrets from Yandex Cloud Lockbox service.
 1. Obtain Yandex Cloud oauth access token by following the guide: https://cloud.yandex.com/en/docs/iam/concepts/authorization/oauth-token
 
 2. Add secret to Lockbox. Use some allowed delimiter to create your hierarchy:
+  
 ![adding a secret to Lockbox](https://github.com/a-postx/Delobytes.Extensions.Configuration/blob/main/add-lockbox-secret-en.png)
 
 3. Once you created a secret you will get secret identifier. You can add it to the application settings (appsettings.json):
