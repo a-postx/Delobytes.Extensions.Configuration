@@ -42,7 +42,7 @@ public class AppSecrets
 }
 ```
 
-5. Add confguration source using extension method of IHostBuilder. Apply your oauth token and other settings:  
+5. Add confguration source using extension method. Apply your oauth token and other settings:  
 
 ```csharp
 IHostBuilder hostBuilder = new HostBuilder().UseContentRoot(Directory.GetCurrentDirectory());
@@ -118,20 +118,50 @@ public class HomeController : ControllerBase
 ### AWS App Config
 Add configuration/secrets from AWS AppConfig service.
 
-Add configuration source:
+1. Create AccessKey and SecretAccessKey in AWS for your service account and provide this data to your application (for example, using environment variables). Make sure that service account has rights to read AppConfig configurations.
+
+2. Add region where the configuration should be picked up from. You can add it using application settings (appsettings.json):
+
+```json
+{
+  "AWS": {
+    "Region": "us-east-1"
+  }
+}
+```
+
+3. Add application, environment and configuration profile with parameters in AppConfig.
+
+4. Create an object that will represent your settings or secrets:
 
 ```csharp
-builder.ConfigureAppConfiguration(configBuilder =>
+public class AppSecrets
 {
+    public string SecretServiceToken { get; set; }
+}
+```
+
+5. Add confguration source using extension method. Apply your RegionEndpoint and other settings:   
+
+```csharp
+IHostBuilder hostBuilder = new HostBuilder().UseContentRoot(Directory.GetCurrentDirectory());
+
+hostBuilder.ConfigureAppConfiguration((hostingContext, configBuilder) =>
+{
+    IHostEnvironment hostEnvironment = hostingContext.HostingEnvironment;
+	IConfigurationRoot tempConfig = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+
     configBuilder.AddAwsAppConfigConfiguration(config =>
         {
 		    config.RegionEndpoint = RegionEndpoint.GetBySystemName(tempConfig.GetValue<string>("AWS:Region"));
-            config.EnvironmentName = hostingEnvironment.EnvironmentName;
-            config.ApplicationName = hostingEnvironment.ApplicationName;
-            config.ConfigurationName = $"{hostingEnvironment.EnvironmentName}-{hostingEnvironment.ApplicationName}-profile";
-            config.ClientId = $"{hostingEnvironment.ApplicationName}-{Node.Id}";
+            config.EnvironmentName = hostEnvironment.EnvironmentName;
+            config.ApplicationName = hostEnvironment.ApplicationName;
+            config.ConfigurationName = $"{hostEnvironment.EnvironmentName}-{hostEnvironment.ApplicationName}-profile";
+            config.ClientId = $"{hostEnvironment.ApplicationName}-{Node.Id}";
             config.Optional = false;
-            config.ReloadPeriod = TimeSpan.FromDays(7);
+            config.ReloadPeriod = TimeSpan.FromDays(1);
             config.LoadTimeout = TimeSpan.FromSeconds(20);
             config.OnLoadException += exceptionContext =>
             {
@@ -141,6 +171,49 @@ builder.ConfigureAppConfiguration(configBuilder =>
 })
 ```
 
+6. Bind configuration to your object:
+
+```csharp
+public class Startup
+{
+    public Startup(IConfiguration configuration)
+    {
+        _config = configuration ?? throw new ArgumentNullException(nameof(configuration));
+    }
+
+    private readonly IConfiguration _config;
+
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services
+            .Configure<AppSecrets>(_config.GetSection(nameof(AppSecrets)), o => o.BindNonPublicProperties = false);
+    }
+}
+```
+
+7. Now you can get your secrets using standard methods:
+
+```csharp
+[Route("/")]
+[ApiController]
+public class HomeController : ControllerBase
+{
+    public HomeController(IConfiguration config)
+    {
+        _config = config;
+    }
+
+    private readonly IConfiguration _config;
+
+    [HttpGet("")]
+    public IActionResult Get()
+    {
+        AppSecrets secrets = _config.GetSection(nameof(AppSecrets)).Get<AppSecrets>();
+
+        return Ok();
+    }
+}
+```
 
 ## License
 [MIT](https://github.com/a-postx/Delobytes.Extensions.Configuration/blob/main/LICENSE)

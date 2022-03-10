@@ -15,7 +15,7 @@
 ## Использование
 
 ### Yandex Cloud Lockbox
-Добавляет конфигурацию/секреты из сервиса Яндекс.Облака Lockbox.
+Добавляет конфигурацию/секреты из сервиса Яндекс.Облако Lockbox.
 
 1. Получите Oauth-токен доступа для Облака используя документацию: https://cloud.yandex.ru/docs/iam/concepts/authorization/oauth-token
 
@@ -42,7 +42,7 @@ public class AppSecrets
 }
 ```
 
-5. Добавьте источник конфигурации c помощью вызова метода расширения на IHostBuilder и предоставьте oauth-токен и другие необходимые настройки:  
+5. Добавьте источник конфигурации c помощью вызова метода расширения и предоставьте oauth-токен и другие необходимые настройки:  
 
 ```csharp
 IHostBuilder hostBuilder = new HostBuilder().UseContentRoot(Directory.GetCurrentDirectory());
@@ -112,26 +112,55 @@ public class HomeController : ControllerBase
         return Ok();
     }
 }
-
 ```
 
 ### AWS App Configuration
 Добавляет конфигурацию/секреты из сервиса AWS AppConfig.
 
-Добавьте источник конфигурации:
+1. Получите ключ доступа и секретный ключ в AWS для соответствующего сервисного пользователя. Предоставьте эти данные приложению удобным для вас способом (например, через переменные окружения). Убедитесь, что у сервисного пользователя достаточно прав на чтение конфигураций AppConfig.
+
+2. Укажите регион AWS из которого следует брать конфигурацию. Его можно добавить в настройки приложения (appsettings.json):
+
+```json
+{
+  "AWS": {
+    "Region": "us-east-1"
+  }
+}
+```
+
+3. Добавьте приложение, среду, и конфигурационный профиль c параметрами/секретами в AppConfig.
+
+4. Создайте объект, который будет представлять ваши настройки или секреты:
 
 ```csharp
-builder.ConfigureAppConfiguration(configBuilder =>
+public class AppSecrets
 {
+    public string SecretServiceToken { get; set; }
+}
+```
+
+5. Добавьте источник конфигурации c помощью вызова метода расширения и предоставьте необходимые настройки:  
+
+```csharp
+IHostBuilder hostBuilder = new HostBuilder().UseContentRoot(Directory.GetCurrentDirectory());
+
+hostBuilder.ConfigureAppConfiguration((hostingContext, configBuilder) =>
+{
+    IHostEnvironment hostEnvironment = hostingContext.HostingEnvironment;
+	IConfigurationRoot tempConfig = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+
     configBuilder.AddAwsAppConfigConfiguration(config =>
         {
 		    config.RegionEndpoint = RegionEndpoint.GetBySystemName(tempConfig.GetValue<string>("AWS:Region"));
-            config.EnvironmentName = hostingEnvironment.EnvironmentName;
-            config.ApplicationName = hostingEnvironment.ApplicationName;
-            config.ConfigurationName = $"{hostingEnvironment.EnvironmentName}-{hostingEnvironment.ApplicationName}-profile";
-            config.ClientId = $"{hostingEnvironment.ApplicationName}-{Node.Id}";
+            config.EnvironmentName = hostEnvironment.EnvironmentName;
+            config.ApplicationName = hostEnvironment.ApplicationName;
+            config.ConfigurationName = $"{hostEnvironment.EnvironmentName}-{hostEnvironment.ApplicationName}-profile";
+            config.ClientId = $"{hostEnvironment.ApplicationName}-{Node.Id}";
             config.Optional = false;
-            config.ReloadPeriod = TimeSpan.FromDays(7);
+            config.ReloadPeriod = TimeSpan.FromDays(1);
             config.LoadTimeout = TimeSpan.FromSeconds(20);
             config.OnLoadException += exceptionContext =>
             {
@@ -141,7 +170,49 @@ builder.ConfigureAppConfiguration(configBuilder =>
 })
 ```
 
+6. Привяжите вашу конфигурацию к объекту:
 
+```csharp
+public class Startup
+{
+    public Startup(IConfiguration configuration)
+    {
+        _config = configuration ?? throw new ArgumentNullException(nameof(configuration));
+    }
+
+    private readonly IConfiguration _config;
+
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services
+            .Configure<AppSecrets>(_config.GetSection(nameof(AppSecrets)), o => o.BindNonPublicProperties = false);
+    }
+}
+```
+
+7. Сразу после привязки вы сможете получать объект стандартными методами работы с конфигурацией, например:
+
+```csharp
+[Route("/")]
+[ApiController]
+public class HomeController : ControllerBase
+{
+    public HomeController(IConfiguration config)
+    {
+        _config = config;
+    }
+
+    private readonly IConfiguration _config;
+
+    [HttpGet("")]
+    public IActionResult Get()
+    {
+        AppSecrets secrets = _config.GetSection(nameof(AppSecrets)).Get<AppSecrets>();
+
+        return Ok();
+    }
+}
+```
 
 ## Лицензия
 [МИТ](https://github.com/a-postx/Delobytes.Extensions.Configuration/blob/main/LICENSE)

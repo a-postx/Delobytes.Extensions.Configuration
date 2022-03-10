@@ -3,8 +3,12 @@ using Microsoft.Extensions.Configuration;
 
 namespace Delobytes.Extensions.Configuration.YandexCloudLockbox;
 
+/// <summary>
+/// Настройки конфигурации с помощью Yandex.Cloud Lockbox
+/// </summary>
 public class YcLockboxConfigurationSource : IConfigurationSource
 {
+    /// <inheritdoc />
     public IConfigurationProvider Build(IConfigurationBuilder builder)
     {
         return new YcLockboxConfigurationProvider(this);

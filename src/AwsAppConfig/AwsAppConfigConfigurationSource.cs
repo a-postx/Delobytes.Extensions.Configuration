@@ -4,23 +4,54 @@ using Microsoft.Extensions.Configuration;
 
 namespace Delobytes.Extensions.Configuration.AwsAppConfig;
 
+/// <summary>
+/// Настройки конфигурации с помощью AWS AppConfig
+/// </summary>
 public class AwsAppConfigConfigurationSource : IConfigurationSource
 {
+    /// <inheritdoc />
     public IConfigurationProvider Build(IConfigurationBuilder builder)
     {
         return new AwsAppConfigConfigurationProvider(this);
     }
 
-    public string EnvironmentName { get; set; }
-    public string ApplicationName { get; set; }
-    public string ConfigurationName { get; set; }
-    public string ClientId { get; set; }
-    public bool Optional { get; set; }
-    public TimeSpan ReloadPeriod { get; set; } = TimeSpan.FromDays(7);
-    public TimeSpan LoadTimeout { get; set; } = TimeSpan.FromSeconds(60);
-    public RegionEndpoint RegionEndpoint { get; set; }
+
     /// <summary>
-    /// Будет вызван, если произошло необработанное исключение при вызове загрузки конфигурации.
+    /// Имя приложения.
+    /// </summary>
+    public string ApplicationName { get; set; }
+    /// <summary>
+    /// Имя конфигурации.
+    /// </summary>
+    public string ConfigurationName { get; set; }
+    /// <summary>
+    /// Имя среды.
+    /// </summary>
+    public string EnvironmentName { get; set; }
+    /// <summary>
+    /// Идентификатор приложения, которое запрашивает конфигурацию.
+    /// </summary>
+    public string ClientId { get; set; }
+    /// <summary>
+    /// Признак того, что конфигурация является опциональной. Если стоит значение false,
+    /// то при невозможности загрузки конфигурации будет вызвано исключение.
+    /// </summary>
+    public bool Optional { get; set; }
+    /// <summary>
+    /// Таймаут запроса загрузки конфигурации.
+    /// </summary>
+    public TimeSpan LoadTimeout { get; set; } = TimeSpan.FromSeconds(60);
+    /// <summary>
+    /// Период обновления конфигурации. По-умолчанию: 7 дней.
+    /// </summary>
+    public TimeSpan ReloadPeriod { get; set; } = TimeSpan.FromDays(7);
+    /// <summary>
+    /// Региональная точка доступа.
+    /// </summary>
+    public RegionEndpoint RegionEndpoint { get; set; }
+
+    /// <summary>
+    /// Вызов, который будет запущен если произошло необработанное исключение при загрузке конфигурации.
     /// </summary>
     public Action<AwsAppConfigExceptionContext> OnLoadException { get; set; }
 }
