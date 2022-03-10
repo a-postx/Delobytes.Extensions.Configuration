@@ -2,9 +2,9 @@ name: 'Build, test and publish packages'
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 env:
   # Disable the .NET logo in the console output.
