@@ -1,5 +1,7 @@
 # Delobytes.Extensions.Configuration
-.Net configuration extensions for popular third-party configuration/secrets providers.
+.Net configuration extensions for configuration/secrets providers. Package allows to use the following third-party providers as a configuration source for your dotnet application (via Microsoft.Extensions.Configuration):
+- Yandex.Cloud Lockbox
+- AWS AppConfig
 
 [RU](README.md), [EN](README.en.md)
 
@@ -14,7 +16,7 @@ The fastest way to add package to your app is via [NuGet](https://www.nuget.org/
 ### Yandex Cloud Lockbox
 Add configuration/secrets from Yandex Cloud Lockbox service.
 
-1. Obtain Yandex Cloud oauth access token by following [the guide] (https://cloud.yandex.com/en/docs/iam/concepts/authorization/oauth-token)
+1. Obtain Yandex Cloud oauth access token by following the guide: https://cloud.yandex.com/en/docs/iam/concepts/authorization/oauth-token
 
 2. Add secret to Lockbox. Use some allowed delimiter to create your hierarchy:
 ![adding a secret to Lockbox](https://github.com/a-postx/Delobytes.Extensions.Configuration/blob/main/add-lockbox-secret-en.png)
@@ -29,7 +31,7 @@ Add configuration/secrets from Yandex Cloud Lockbox service.
 }
 ```
 
-4. Add object that will represent your settings or secrets:
+4. Create an object that will represent your settings or secrets:
 
 ```csharp
 public class AppSecrets
@@ -38,10 +40,12 @@ public class AppSecrets
 }
 ```
 
-5. Add confguration source using extension method of IHostBuilder and apply your settings:  
+5. Add confguration source using extension method of IHostBuilder. Apply your oauth token and other settings:  
 
 ```csharp
-builder.ConfigureAppConfiguration(configBuilder =>
+IHostBuilder hostBuilder = new HostBuilder().UseContentRoot(Directory.GetCurrentDirectory());
+
+hostBuilder.ConfigureAppConfiguration(configBuilder =>
 {
     IConfigurationRoot tempConfig = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
@@ -64,7 +68,7 @@ builder.ConfigureAppConfiguration(configBuilder =>
 })
 ```
 
-6. Add object to your configuration:
+6. Bind configuration to your object:
 
 ```csharp
 public class Startup
@@ -80,8 +84,6 @@ public class Startup
     {
         services
             .Configure<AppSecrets>(_config.GetSection(nameof(AppSecrets)), o => o.BindNonPublicProperties = false);
-
-        AppSecrets secrets = _config.GetSection(nameof(AppSecrets)).Get<AppSecrets>();
     }
 }
 ```
