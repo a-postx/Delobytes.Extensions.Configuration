@@ -1,9 +1,10 @@
 # Delobytes.Extensions.Configuration
+
+[RU](README.md), [EN](README.en.md)
+
 .Net configuration extensions for configuration/secrets providers. Package allows to use the following third-party providers as a configuration source for your .NetCore application (via Microsoft.Extensions.Configuration):
 - Yandex.Cloud Lockbox
 - AWS AppConfig
-
-[RU](README.md), [EN](README.en.md)
 
 ## Installation
 
@@ -124,7 +125,7 @@ builder.ConfigureAppConfiguration(configBuilder =>
 {
     configBuilder.AddAwsAppConfigConfiguration(config =>
         {
-			config.RegionEndpoint = RegionEndpoint.GetBySystemName(tempConfig.GetValue<string>("AWS:Region"));
+		    config.RegionEndpoint = RegionEndpoint.GetBySystemName(tempConfig.GetValue<string>("AWS:Region"));
             config.EnvironmentName = hostingEnvironment.EnvironmentName;
             config.ApplicationName = hostingEnvironment.ApplicationName;
             config.ConfigurationName = $"{hostingEnvironment.EnvironmentName}-{hostingEnvironment.ApplicationName}-profile";

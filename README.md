@@ -1,9 +1,10 @@
 ﻿# Delobytes.Extensions.Configuration
+
+[RU](README.md), [EN](README.en.md)
+
 Расширения конфигурации .Net для поставщиков параметров/секретов. Пакет позволяет использовать следующие внешние сервисы в качестве источника конфигурации/секретов вашего .NetCore приложения (с помощью Microsoft.Extensions.Configuration):
 - Яндекс.Облако Локбокс
 - AWS AppConfig
-
-[RU](README.md), [EN](README.en.md)
 
 ## Установка
 
@@ -124,7 +125,7 @@ builder.ConfigureAppConfiguration(configBuilder =>
 {
     configBuilder.AddAwsAppConfigConfiguration(config =>
         {
-			config.RegionEndpoint = RegionEndpoint.GetBySystemName(tempConfig.GetValue<string>("AWS:Region"));
+		    config.RegionEndpoint = RegionEndpoint.GetBySystemName(tempConfig.GetValue<string>("AWS:Region"));
             config.EnvironmentName = hostingEnvironment.EnvironmentName;
             config.ApplicationName = hostingEnvironment.ApplicationName;
             config.ConfigurationName = $"{hostingEnvironment.EnvironmentName}-{hostingEnvironment.ApplicationName}-profile";
