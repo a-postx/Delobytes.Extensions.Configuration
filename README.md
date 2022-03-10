@@ -12,13 +12,41 @@
 ## Использование
 
 ### Yandex Cloud Lockbox
-Добавляет конфигурацию/секреты из сервиса Yandex.Cloud Lockbox.
+Добавляет конфигурацию/секреты из сервиса Яндекс.Облака Lockbox.
 
-Добавьте источник конфигурации c помощью вызова метода расширения на IHostBuilder:  
+1. Получите Oauth-токен доступа для Облака используя [документацию] (https://cloud.yandex.ru/docs/iam/concepts/authorization/oauth-token)
+
+2. Добавьте секрет в локбокс. Для создания иерархии используйте какой-либо допустимый символ-разделитель.
+![добавление секрета](https://github.com/a-postx/Delobytes.Extensions.Configuration/blob/main/add-lockbox-secret-ru.png)
+
+3. После создания вам станет доступен идентификатор секрета, его можно добавить в настройки приложения (appsettings.json):
+
+```json
+{
+  "YC": {
+    "ConfigurationSecretId": "a6q9d19c6m2a7lpjambd"
+  }
+}
+```
+
+4. Добавьте объект, который будет представлять ваши настройки или секреты:
+
+```csharp
+public class AppSecrets
+{
+    public string SecretServiceToken { get; set; }
+}
+```
+
+5. Добавьте источник конфигурации c помощью вызова метода расширения на IHostBuilder с необходимыми настройками:  
 
 ```csharp
 builder.ConfigureAppConfiguration(configBuilder =>
 {
+    IConfigurationRoot tempConfig = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+			
     configBuilder.AddYandexCloudLockboxConfiguration(config =>
         {
             config.OauthToken = Environment.GetEnvironmentVariable("YC_OAUTH_TOKEN");
@@ -34,6 +62,53 @@ builder.ConfigureAppConfiguration(configBuilder =>
             };
         });
 })
+```
+
+6. Добавьте объект в вашу конфигурацию:
+
+```csharp
+public class Startup
+{
+    public Startup(IConfiguration configuration)
+    {
+        _config = configuration ?? throw new ArgumentNullException(nameof(configuration));
+    }
+
+    private readonly IConfiguration _config;
+
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services
+            .Configure<AppSecrets>(_config.GetSection(nameof(AppSecrets)), o => o.BindNonPublicProperties = false);
+
+        AppSecrets secrets = _config.GetSection(nameof(AppSecrets)).Get<AppSecrets>();
+    }
+}
+```
+
+7. Теперь вы сможете получать объект стандартными методами работы с конфигурацией, например:
+
+```csharp
+[Route("/")]
+[ApiController]
+public class HomeController : ControllerBase
+{
+    public HomeController(IConfiguration config)
+    {
+        _config = config;
+    }
+
+    private readonly IConfiguration _config;
+
+    [HttpGet("")]
+    public IActionResult Get()
+    {
+        AppSecrets secrets = _config.GetSection(nameof(AppSecrets)).Get<AppSecrets>();
+
+        return Ok();
+    }
+}
+
 ```
 
 ### AWS App Configuration
@@ -65,4 +140,4 @@ builder.ConfigureAppConfiguration(configBuilder =>
 
 
 ## Лицензия
-[МИТ](https://github.com/a-postx/Delobytes.Extensions.Configuration/blob/master/LICENSE)
+[МИТ](https://github.com/a-postx/Delobytes.Extensions.Configuration/blob/main/LICENSE)
