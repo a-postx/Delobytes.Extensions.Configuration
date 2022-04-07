@@ -6,7 +6,6 @@ using Google.Protobuf.Collections;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 using Yandex.Cloud;
-using Yandex.Cloud.Credentials;
 using Yandex.Cloud.Lockbox.V1;
 using static Yandex.Cloud.Lockbox.V1.Payload.Types;
 
@@ -22,7 +21,6 @@ public class YcLockboxConfigurationProvider : ConfigurationProvider
     /// </summary>
     /// <param name="source">Настройки провайдера.</param>
     /// <exception cref="ArgumentNullException">Аргумент не найден.</exception>
-    /// <exception cref="ArgumentException">Аргумент неверен.</exception>
     public YcLockboxConfigurationProvider(YcLockboxConfigurationSource source)
     {
         if (source == null)
@@ -137,9 +135,6 @@ public class YcLockboxConfigurationProvider : ConfigurationProvider
 
     private async Task<Dictionary<string, string>> GetAllKeyValuePairsAsync(CancellationToken cancellationToken)
     {
-        //ListCloudsResponse response = sdk.Services.Resourcemanager.CloudService.List(new ListCloudsRequest());
-        //Cloud? prodCloud = response.Clouds.FirstOrDefault();
-
         Dictionary<string, string> result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         RepeatedField<Entry> entries = await GetSecretAsync(_secretId, cancellationToken);
