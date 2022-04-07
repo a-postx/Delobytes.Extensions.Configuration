@@ -14,11 +14,18 @@ public class YcLockboxConfigurationSource : IConfigurationSource
         return new YcLockboxConfigurationProvider(this);
     }
 
-
     /// <summary>
-    /// Токен аутентификации.
+    /// Идентификатор сервисной учётки.
     /// </summary>
-    public string OauthToken { get; set; }
+    public string ServiceAccountId { get; set; }
+    /// <summary>
+    /// Идентификатор авторизованного ключа сервисной учётки.
+    /// </summary>
+    public string ServiceAccountAuthorizedKeyId { get; set; }
+    /// <summary>
+    /// Приватный ключ авторизованного ключа сервисной учётки.
+    /// </summary>
+    public string PrivateKey { get; set; }
     /// <summary>
     /// Идентификатор секрета из которого необходимо взять элементы конфигурации.
     /// </summary>

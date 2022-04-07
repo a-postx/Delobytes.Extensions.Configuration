@@ -12,21 +12,23 @@ using static Yandex.Cloud.Lockbox.V1.Payload.Types;
 
 namespace Delobytes.Extensions.Configuration.YandexCloudLockbox;
 
+/// <summary>
+/// Провайдер конфигурации на базе Яндекс.Облако Lockbox.
+/// </summary>
 public class YcLockboxConfigurationProvider : ConfigurationProvider
 {
+    /// <summary>
+    /// Конструктор.
+    /// </summary>
+    /// <param name="source">Настройки провайдера.</param>
+    /// <exception cref="ArgumentNullException">Аргумент не найден.</exception>
+    /// <exception cref="ArgumentException">Аргумент неверен.</exception>
     public YcLockboxConfigurationProvider(YcLockboxConfigurationSource source)
     {
         if (source == null)
         {
             throw new ArgumentNullException(nameof(source));
         }
-
-        if (string.IsNullOrEmpty(source.OauthToken))
-        {
-            throw new ArgumentException("Oauth token cannot be found.", nameof(source.OauthToken));
-        }
-
-        _sdk = new Sdk(new OAuthCredentialsProvider(source.OauthToken));
 
         _optional = source.Optional;
         _secretId = source.SecretId;
@@ -35,6 +37,8 @@ public class YcLockboxConfigurationProvider : ConfigurationProvider
         _reloadPeriod = source.ReloadPeriod;
         _loadTimeout = source.LoadTimeout;
         _onLoadException = source.OnLoadException;
+
+        _tokenGenerator = new JwtTokenGenerator(source.ServiceAccountId, source.ServiceAccountAuthorizedKeyId, source.PrivateKey);
 
         ChangeToken.OnChange(() =>
         {
@@ -54,11 +58,11 @@ public class YcLockboxConfigurationProvider : ConfigurationProvider
     private readonly TimeSpan _loadTimeout;
     private readonly Action<YcLockboxExceptionContext> _onLoadException;
 
-    private readonly Sdk _sdk;
+    private readonly JwtTokenGenerator _tokenGenerator;
 
     private const char ConfigurationKeyDelimiter = ':';
 
-
+    /// <inheritdoc />
     public override void Load()
     {
 #pragma warning disable VSTHRD002 //Пока нет асинхронного метода https://github.com/dotnet/runtime/issues/36018
@@ -113,10 +117,13 @@ public class YcLockboxConfigurationProvider : ConfigurationProvider
         }
     }
 
-    private async Task<RepeatedField<Entry>> GetSecretAsync(string id, CancellationToken cancellationToken)
+    private async Task<RepeatedField<Entry>> GetSecretAsync(string secretId, CancellationToken cancellationToken)
     {
-        Payload payload = await _sdk.Services.Lockbox.PayloadService
-            .GetAsync(new GetPayloadRequest { SecretId = id }, null, null, cancellationToken);
+        string encodedToken = _tokenGenerator.GetEncodedJwtToken();
+        Sdk sdk = new Sdk(new JwtCredentialsProvider(encodedToken));
+
+        Payload payload = await sdk.Services.Lockbox.PayloadService
+                .GetAsync(new GetPayloadRequest { SecretId = secretId }, null, null, cancellationToken);
 
         if (payload.Entries.Count > 0)
         {

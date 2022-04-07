@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-	<Version>0.1.0.0</Version>
+    <TargetFramework>net6.0</TargetFramework>
+	<Version>0.2.0.0-alpha1</Version>
     <LangVersion>latest</LangVersion>
     <Authors>Алексей Якубин</Authors>
     <Company>Делобайты</Company>
@@ -23,11 +23,16 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.0.*" />
     <PackageReference Include="AWSSDK.AppConfig" Version="3.7.0.52" />
 	<PackageReference Include="Yandex.Cloud.SDK" Version="1.1.0" />
+    <PackageReference Include="jose-jwt" Version="4.0.0" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="AwsAppConfig\" />
-    <Folder Include="YandexCloudLockbox\" />
+  </ItemGroup>
+
+  <ItemGroup Label="Package References">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
 </Project>

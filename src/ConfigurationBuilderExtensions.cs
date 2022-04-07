@@ -5,8 +5,18 @@ using Delobytes.Extensions.Configuration.YandexCloudLockbox;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.Configuration;
 
+/// <summary>
+/// Расширения строителя конфигурации.
+/// </summary>
 public static class ConfigurationBuilderExtensions
 {
+    /// <summary>
+    /// Добавляет провайдер секретов на базе AWS AppConfiguration.
+    /// </summary>
+    /// <param name="builder">Строитель конфигурации.</param>
+    /// <param name="configureSource">Конфигурационный вызов.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException">Аргумент недоступен.</exception>
     public static IConfigurationBuilder AddAwsAppConfigConfiguration(this IConfigurationBuilder builder, Action<AwsAppConfigConfigurationSource> configureSource)
     {
         if (configureSource == null)
@@ -41,6 +51,13 @@ public static class ConfigurationBuilderExtensions
         return builder;
     }
 
+    /// <summary>
+    /// Добавляет провайдер секретов на базе Lockbox.
+    /// </summary>
+    /// <param name="builder">Строитель конфигурации.</param>
+    /// <param name="configureSource">Конфигурационный вызов.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException">Аргумент недоступен.</exception>
     public static IConfigurationBuilder AddYandexCloudLockboxConfiguration(this IConfigurationBuilder builder, Action<YcLockboxConfigurationSource> configureSource)
     {
         if (configureSource == null)
@@ -51,9 +68,19 @@ public static class ConfigurationBuilderExtensions
         YcLockboxConfigurationSource source = new YcLockboxConfigurationSource();
         configureSource(source);
 
-        if (string.IsNullOrEmpty(source.OauthToken))
+        if (string.IsNullOrEmpty(source.ServiceAccountId))
         {
-            throw new ArgumentNullException(nameof(source.OauthToken));
+            throw new ArgumentNullException(nameof(source.ServiceAccountId));
+        }
+        
+        if (string.IsNullOrEmpty(source.ServiceAccountAuthorizedKeyId))
+        {
+            throw new ArgumentNullException(nameof(source.ServiceAccountAuthorizedKeyId));
+        }
+
+        if (string.IsNullOrEmpty(source.PrivateKey))
+        {
+            throw new ArgumentNullException(nameof(source.PrivateKey));
         }
 
         if (string.IsNullOrEmpty(source.SecretId))

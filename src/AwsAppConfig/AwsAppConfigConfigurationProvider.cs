@@ -13,8 +13,16 @@ using Microsoft.Extensions.Primitives;
 
 namespace Delobytes.Extensions.Configuration.AwsAppConfig;
 
+/// <summary>
+/// Провайдер конфигурации на базе AWS AppConfig.
+/// </summary>
 public class AwsAppConfigConfigurationProvider : ConfigurationProvider
 {
+    /// <summary>
+    /// Конструктор.
+    /// </summary>
+    /// <param name="source">Настройки провайдера.</param>
+    /// <exception cref="ArgumentNullException"></exception>
     public AwsAppConfigConfigurationProvider(AwsAppConfigConfigurationSource source)
     {
         if (source == null)
@@ -58,7 +66,7 @@ public class AwsAppConfigConfigurationProvider : ConfigurationProvider
     private readonly TimeSpan _loadTimeout;
     private readonly Action<AwsAppConfigExceptionContext> _onLoadException;
 
-    //Пока нет асинхронного метода https://github.com/dotnet/runtime/issues/36018
+    /// <inheritdoc />
     public override void Load()
     {
 #pragma warning disable VSTHRD002 //Пока нет асинхронного метода https://github.com/dotnet/runtime/issues/36018
