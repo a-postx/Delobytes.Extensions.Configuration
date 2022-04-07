@@ -17,23 +17,27 @@ The fastest way to add package to your app is via [NuGet](https://www.nuget.org/
 ### Yandex Cloud Lockbox
 Add configuration/secrets from Yandex Cloud Lockbox service.
 
-1. Obtain Yandex Cloud oauth access token by following the guide: https://cloud.yandex.com/en/docs/iam/concepts/authorization/oauth-token
+1. Go to Yandex.Cloud console and create new service account with role "lockbox.payloadViewer" to get service account ID.
 
-2. Add secret to Lockbox. Use some allowed delimiter to create your hierarchy:
+2. Create new authorized key for this service account to get key identifier and private key.
+
+3. Go to Lockbox and add a secret. Use some allowed delimiter to create your hierarchy:
   
 ![adding a secret to Lockbox](https://github.com/a-postx/Delobytes.Extensions.Configuration/blob/main/add-lockbox-secret-en.png)
 
-3. Once you created a secret you will get secret identifier. You can add it to the application settings (appsettings.json):
+4. Once you created a secret you will get secret identifier. Add identifiers to the application settings (appsettings.json):
 
 ```json
 {
   "YC": {
-    "ConfigurationSecretId": "a6q9d19c6m2a7lpjambd"
+    "ConfigurationSecretId": "e6q9a81c6m2bolpjaqjq",
+    "ServiceAccountId": "ajm2bdb9qq3mk4umqq23",
+    "ServiceAccountAuthorizedKeyId": "aje25rj0oacm5o10ib43"
   }
 }
 ```
 
-4. Create an object that will represent your settings or secrets:
+5. Create an object that will represent your settings or secrets:
 
 ```csharp
 public class AppSecrets
@@ -42,7 +46,7 @@ public class AppSecrets
 }
 ```
 
-5. Add confguration source using extension method. Apply your oauth token and other settings:  
+6. Add confguration source using extension method. Get identifiers from the application settings file and private key using some environment variable. Configure all other settings as needed:  
 
 ```csharp
 IHostBuilder hostBuilder = new HostBuilder().UseContentRoot(Directory.GetCurrentDirectory());
@@ -55,7 +59,9 @@ hostBuilder.ConfigureAppConfiguration(configBuilder =>
 			
     configBuilder.AddYandexCloudLockboxConfiguration(config =>
         {
-            config.OauthToken = Environment.GetEnvironmentVariable("YC_OAUTH_TOKEN");
+            config.PrivateKey = Environment.GetEnvironmentVariable("YC_PRIVATE_KEY");
+            config.ServiceAccountId = tempConfig.GetValue<string>("YC:ServiceAccountId");
+            config.ServiceAccountAuthorizedKeyId = tempConfig.GetValue<string>("YC:ServiceAccountAuthorizedKeyId");
             config.SecretId = tempConfig.GetValue<string>("YC:ConfigurationSecretId");
             config.Path = "MyPath";
             config.PathSeparator = '-';
@@ -70,7 +76,7 @@ hostBuilder.ConfigureAppConfiguration(configBuilder =>
 })
 ```
 
-6. Bind configuration to your object:
+7. Bind configuration to your object:
 
 ```csharp
 public class Startup
@@ -90,7 +96,7 @@ public class Startup
 }
 ```
 
-7. Now you can get your secrets using standard methods:
+8. Now you can get your secrets using standard methods:
 
 ```csharp
 [Route("/")]

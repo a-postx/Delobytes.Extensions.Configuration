@@ -17,18 +17,22 @@
 ### Yandex Cloud Lockbox
 Добавляет конфигурацию/секреты из сервиса Яндекс.Облако Lockbox.
 
-1. Получите Oauth-токен доступа для Облака используя документацию: https://cloud.yandex.ru/docs/iam/concepts/authorization/oauth-token
+1. Откройте консоль Яндекс.Облака и создайте сервисную учётную запись с ролью "lockbox.payloadViewer" и запишите её идентификатор.
 
-2. Добавьте секрет в локбокс. Для создания иерархии используйте какой-либо допустимый символ-разделитель.
+2. Создайте новый авторизованный ключ для этой сервисной учётки. Запишите идентификатор ключа и приватный ключ.
+
+3. Добавьте любой секрет в Локбокс. Для создания иерархии используйте какой-либо допустимый символ-разделитель.
   
 ![добавление секрета](https://github.com/a-postx/Delobytes.Extensions.Configuration/blob/main/add-lockbox-secret-ru.png)
 
-3. После создания вам станет доступен идентификатор секрета, его можно добавить в настройки приложения (appsettings.json):
+4. После создания вам станет доступен идентификатор секрета. Занесите в настройки приложения (appsettings.json) идентификаторы:
 
 ```json
 {
   "YC": {
-    "ConfigurationSecretId": "a6q9d19c6m2a7lpjambd"
+    "ConfigurationSecretId": "e6q9a81c6m2bolpjaqjq",
+    "ServiceAccountId": "ajm2bdb9qq3mk4umqq23",
+    "ServiceAccountAuthorizedKeyId": "aje25rj0oacm5o10ib43"
   }
 }
 ```
@@ -42,7 +46,7 @@ public class AppSecrets
 }
 ```
 
-5. Добавьте источник конфигурации c помощью вызова метода расширения и предоставьте oauth-токен и другие необходимые настройки:  
+5. Добавьте источник конфигурации c помощью вызова метода расширения. Получите идентификаторы из файла конфигурации приложения, а приватный ключ из переменных среды и сконфигурируйте другие необходимые настройки:
 
 ```csharp
 IHostBuilder hostBuilder = new HostBuilder().UseContentRoot(Directory.GetCurrentDirectory());
@@ -55,7 +59,9 @@ hostBuilder.ConfigureAppConfiguration(configBuilder =>
 			
     configBuilder.AddYandexCloudLockboxConfiguration(config =>
         {
-            config.OauthToken = Environment.GetEnvironmentVariable("YC_OAUTH_TOKEN");
+            config.PrivateKey = Environment.GetEnvironmentVariable("YC_PRIVATE_KEY");
+            config.ServiceAccountId = tempConfig.GetValue<string>("YC:ServiceAccountId");
+            config.ServiceAccountAuthorizedKeyId = tempConfig.GetValue<string>("YC:ServiceAccountAuthorizedKeyId");
             config.SecretId = tempConfig.GetValue<string>("YC:ConfigurationSecretId");
             config.Path = "MyPath";
             config.PathSeparator = '-';
