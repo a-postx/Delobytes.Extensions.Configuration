@@ -161,7 +161,7 @@ hostBuilder.ConfigureAppConfiguration((hostingContext, configBuilder) =>
 
     configBuilder.AddAwsAppConfigConfiguration(config =>
         {
-		    config.RegionEndpoint = RegionEndpoint.GetBySystemName(tempConfig.GetValue<string>("AWS:Region"));
+            config.RegionEndpoint = RegionEndpoint.GetBySystemName(tempConfig.GetValue<string>("AWS:Region"));
             config.EnvironmentName = hostEnvironment.EnvironmentName;
             config.ApplicationName = hostEnvironment.ApplicationName;
             config.ConfigurationName = $"{hostEnvironment.EnvironmentName}-{hostEnvironment.ApplicationName}-profile";

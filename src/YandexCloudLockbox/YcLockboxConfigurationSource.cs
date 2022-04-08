@@ -45,7 +45,7 @@ public class YcLockboxConfigurationSource : IConfigurationSource
     /// </summary>
     public bool Optional { get; set; }
     /// <summary>
-    /// Таймаут запроса загрузки конфигурации.
+    /// Таймаут запроса загрузки конфигурации. По-умолчанию: 60 cекунд.
     /// </summary>
     public TimeSpan LoadTimeout { get; set; } = TimeSpan.FromSeconds(60);
     /// <summary>
