@@ -2,7 +2,7 @@
 
 [RU](README.md), [EN](README.en.md)
 
-Расширения конфигурации .Net для поставщиков параметров/секретов. Пакет позволяет использовать следующие внешние сервисы в качестве источника конфигурации/секретов вашего .NetCore приложения (с помощью Microsoft.Extensions.Configuration):
+Расширения конфигурации .Net для поставщиков параметров/секретов. Пакет позволяет использовать следующие клиенты внешних сервисов в качестве источника конфигурации/секретов вашего .NetCore приложения (с помощью Microsoft.Extensions.Configuration):
 - Яндекс.Облако Локбокс
 - AWS AppConfig
 
@@ -37,15 +37,6 @@
 }
 ```
 
-4. Создайте объект, который будет представлять ваши настройки или секреты:
-
-```csharp
-public class AppSecrets
-{
-    public string SecretServiceToken { get; set; }
-}
-```
-
 5. Добавьте источник конфигурации c помощью вызова метода расширения. Получите идентификаторы из файла конфигурации приложения, а приватный ключ из переменных среды и сконфигурируйте другие необходимые настройки:
 
 ```csharp
@@ -76,27 +67,14 @@ hostBuilder.ConfigureAppConfiguration(configBuilder =>
 })
 ```
 
-6. Привяжите вашу конфигурацию к объекту:
+6. В результате вы сможете получать объект стандартными методами работы с конфигурацией. Например, создав соответствующий объект и подключая к нему конфигурацию:
 
 ```csharp
-public class Startup
+public class AppSecrets
 {
-    public Startup(IConfiguration configuration)
-    {
-        _config = configuration ?? throw new ArgumentNullException(nameof(configuration));
-    }
-
-    private readonly IConfiguration _config;
-
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services
-            .Configure<AppSecrets>(_config.GetSection(nameof(AppSecrets)), o => o.BindNonPublicProperties = false);
-    }
+    public string SecretServiceToken { get; set; }
 }
 ```
-
-7. Сразу после привязки вы сможете получать объект стандартными методами работы с конфигурацией, например:
 
 ```csharp
 [Route("/")]
@@ -135,18 +113,9 @@ public class HomeController : ControllerBase
 }
 ```
 
-3. Добавьте приложение, среду, и конфигурационный профиль c параметрами/секретами в AppConfig.
+3. Добавьте приложение, среду, и конфигурационный профиль c параметрами/секретами в консоли AWS AppConfig.
 
-4. Создайте объект, который будет представлять ваши настройки или секреты:
-
-```csharp
-public class AppSecrets
-{
-    public string SecretServiceToken { get; set; }
-}
-```
-
-5. Добавьте источник конфигурации c помощью вызова метода расширения и предоставьте необходимые настройки:  
+4. Добавьте источник конфигурации c помощью вызова метода расширения и предоставьте необходимые настройки:  
 
 ```csharp
 IHostBuilder hostBuilder = new HostBuilder().UseContentRoot(Directory.GetCurrentDirectory());
@@ -176,27 +145,14 @@ hostBuilder.ConfigureAppConfiguration((hostingContext, configBuilder) =>
 })
 ```
 
-6. Привяжите вашу конфигурацию к объекту:
+5. В результате вы сможете получать объект стандартными методами работы с конфигурацией. Например, создав соответствующий объект и подключая к нему конфигурацию:
 
 ```csharp
-public class Startup
+public class AppSecrets
 {
-    public Startup(IConfiguration configuration)
-    {
-        _config = configuration ?? throw new ArgumentNullException(nameof(configuration));
-    }
-
-    private readonly IConfiguration _config;
-
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services
-            .Configure<AppSecrets>(_config.GetSection(nameof(AppSecrets)), o => o.BindNonPublicProperties = false);
-    }
+    public string SecretServiceToken { get; set; }
 }
 ```
-
-7. Сразу после привязки вы сможете получать объект стандартными методами работы с конфигурацией, например:
 
 ```csharp
 [Route("/")]

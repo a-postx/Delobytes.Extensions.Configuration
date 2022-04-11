@@ -2,7 +2,7 @@
 
 [RU](README.md), [EN](README.en.md)
 
-.Net configuration extensions for configuration/secrets providers. Package allows to use the following third-party providers as a configuration source for your .NetCore application (via Microsoft.Extensions.Configuration):
+.Net configuration extensions for configuration/secrets providers. Package allows to use the following third-party provider clients as a configuration source for your .NetCore application (via Microsoft.Extensions.Configuration):
 - Yandex.Cloud Lockbox
 - AWS AppConfig
 
@@ -37,16 +37,7 @@ Add configuration/secrets from Yandex Cloud Lockbox service.
 }
 ```
 
-5. Create an object that will represent your settings or secrets:
-
-```csharp
-public class AppSecrets
-{
-    public string SecretServiceToken { get; set; }
-}
-```
-
-6. Add confguration source using extension method. Get identifiers from the application settings file and private key using some environment variable. Configure all other settings as needed:  
+5. Add confguration source using extension method. Get identifiers from the application settings file and private key using some environment variable. Configure all other settings as needed:  
 
 ```csharp
 IHostBuilder hostBuilder = new HostBuilder().UseContentRoot(Directory.GetCurrentDirectory());
@@ -76,27 +67,14 @@ hostBuilder.ConfigureAppConfiguration(configBuilder =>
 })
 ```
 
-7. Bind configuration to your object:
+6. Now you can get your secrets using standard methods. For example, by creating an object representing your secrets and binding configuration to this object:
 
 ```csharp
-public class Startup
+public class AppSecrets
 {
-    public Startup(IConfiguration configuration)
-    {
-        _config = configuration ?? throw new ArgumentNullException(nameof(configuration));
-    }
-
-    private readonly IConfiguration _config;
-
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services
-            .Configure<AppSecrets>(_config.GetSection(nameof(AppSecrets)), o => o.BindNonPublicProperties = false);
-    }
+    public string SecretServiceToken { get; set; }
 }
 ```
-
-8. Now you can get your secrets using standard methods:
 
 ```csharp
 [Route("/")]
@@ -118,7 +96,6 @@ public class HomeController : ControllerBase
         return Ok();
     }
 }
-
 ```
 
 ### AWS App Config
@@ -138,16 +115,7 @@ Add configuration/secrets from AWS AppConfig service.
 
 3. Add application, environment and configuration profile with parameters in AppConfig.
 
-4. Create an object that will represent your settings or secrets:
-
-```csharp
-public class AppSecrets
-{
-    public string SecretServiceToken { get; set; }
-}
-```
-
-5. Add confguration source using extension method. Apply your RegionEndpoint and other settings:   
+4. Add confguration source using extension method. Apply your RegionEndpoint and other settings:   
 
 ```csharp
 IHostBuilder hostBuilder = new HostBuilder().UseContentRoot(Directory.GetCurrentDirectory());
@@ -177,27 +145,7 @@ hostBuilder.ConfigureAppConfiguration((hostingContext, configBuilder) =>
 })
 ```
 
-6. Bind configuration to your object:
-
-```csharp
-public class Startup
-{
-    public Startup(IConfiguration configuration)
-    {
-        _config = configuration ?? throw new ArgumentNullException(nameof(configuration));
-    }
-
-    private readonly IConfiguration _config;
-
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services
-            .Configure<AppSecrets>(_config.GetSection(nameof(AppSecrets)), o => o.BindNonPublicProperties = false);
-    }
-}
-```
-
-7. Now you can get your secrets using standard methods:
+5. Now you can get your secrets using standard methods. For example, by creating an object representing your secrets and binding configuration to this object:
 
 ```csharp
 [Route("/")]
