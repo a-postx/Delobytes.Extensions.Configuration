@@ -6,6 +6,8 @@
 - Yandex.Cloud Lockbox
 - AWS AppConfig
 
+Guide with usage details: https://habr.com/ru/post/660449/
+
 ## Installation
 
 The fastest way to add package to your app is via [NuGet](https://www.nuget.org/packages/Delobytes.Extensions.Configuration):
@@ -64,7 +66,7 @@ hostBuilder.ConfigureAppConfiguration(configBuilder =>
                 //log
             };
         });
-})
+});
 ```
 
 6. Now you can get your secrets using standard methods. For example, by creating an object representing your secrets and binding configuration to this object:
@@ -142,7 +144,7 @@ hostBuilder.ConfigureAppConfiguration((hostingContext, configBuilder) =>
                 //log
             };
         });
-})
+});
 ```
 
 5. Now you can get your secrets using standard methods. For example, by creating an object representing your secrets and binding configuration to this object:
