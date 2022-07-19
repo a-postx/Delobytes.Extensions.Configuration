@@ -24,7 +24,11 @@ Add configuration/secrets from Yandex Cloud Lockbox service.
 2. Create new authorized key for this service account to get key identifier and private key.
 
 3. Go to Lockbox and add a secret. Use some allowed delimiter to create your hierarchy:
-  
+
+```
+yc lockbox secret create --name Production --payload "[{"key": "MyPath-AppSecrets-SecretServiceToken", "text_value": "supersecret"}]"
+```
+
 ![adding a secret to Lockbox](https://github.com/a-postx/Delobytes.Extensions.Configuration/blob/main/add-lockbox-secret-en.png)
 
 4. Once you created a secret you will get secret identifier. Add identifiers to the application settings (appsettings.json):

@@ -24,6 +24,10 @@
 2. Создайте новый авторизованный ключ для этой сервисной учётки. Запишите идентификатор ключа и приватный ключ.
 
 3. Добавьте любой секрет в Локбокс. Для создания иерархии используйте какой-либо допустимый символ-разделитель.
+
+```
+yc lockbox secret create --name Production --payload "[{"key": "MyPath-AppSecrets-SecretServiceToken", "text_value": "секретныйсекрет"}]"
+```
   
 ![добавление секрета](https://github.com/a-postx/Delobytes.Extensions.Configuration/blob/main/add-lockbox-secret-ru.png)
 
