@@ -2,11 +2,11 @@ name: 'Build and test'
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths-ignore:
       - '**.md'
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
     paths-ignore:
       - '**.md'
 
@@ -41,4 +41,12 @@ jobs:
     - name: 'Build'
       run: dotnet build --configuration Release --no-restore
     - name: 'Test'
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test --no-restore --verbosity normal --logger trx --results-directory "TestResults-${{ matrix.dotnet-version }}"
+    - name: 'Upload test results'
+      if: always()
+      uses: actions/upload-artifact@v3.0.0
+      with:
+        name: dotnet-results-${{ matrix.dotnet-version }}
+        path: TestResults-${{ matrix.dotnet-version }}
+        if-no-files-found: error
+        retention-days: 3
