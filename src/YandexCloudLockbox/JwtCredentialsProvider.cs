@@ -13,20 +13,21 @@ public class JwtCredentialsProvider : ICredentialsProvider
     /// <summary>
     /// Конструктор.
     /// </summary>
+    /// <param name="host">Хост и порт, к которому производится подключение.</param>
     /// <param name="jwtToken">JWT-токен, который необходимо использовать для получения IAM-токена.</param>
-    public JwtCredentialsProvider(string jwtToken)
+    public JwtCredentialsProvider(string host, string jwtToken)
     {
-        _tokenService = TokenService();
+        _tokenService = GetIamTokenServiceClient(host);
         _jwtToken = jwtToken;
     }
 
     private readonly IamTokenService.IamTokenServiceClient _tokenService;
     private readonly string _jwtToken;
-    private CreateIamTokenResponse _iamToken;
+    private CreateIamTokenResponse? _iamToken;
 
-    private IamTokenService.IamTokenServiceClient TokenService()
+    private static IamTokenService.IamTokenServiceClient GetIamTokenServiceClient(string host)
     {
-        Channel channel = new Channel("iam.api.cloud.yandex.net:443", new SslCredentials());
+        Channel channel = new Channel(host, new SslCredentials());
         return new IamTokenService.IamTokenServiceClient(channel);
     }
 

@@ -8,6 +8,24 @@ namespace Delobytes.Extensions.Configuration.YandexCloudLockbox;
 public class YcLockboxExceptionContext
 {
     /// <summary>
+    /// Конструктор.
+    /// </summary>
+    /// <param name="provider">Провайдер конфигурации.</param>
+    /// <param name="exception">Исключение.</param>
+    /// <param name="reload">Флаг обозначающий выброс исключения во время обновления конфигурации.</param>
+    /// <exception cref="ArgumentNullException">Аргумент не найден.</exception>
+    public YcLockboxExceptionContext(YcLockboxConfigurationProvider provider, Exception exception, bool reload)
+    {
+        ArgumentNullException.ThrowIfNull(provider, nameof(provider));
+        ArgumentNullException.ThrowIfNull(exception, nameof(exception));
+        ArgumentNullException.ThrowIfNull(reload, nameof(reload));
+
+        Provider = provider;
+        Exception = exception;
+        Reload = reload;
+    }
+
+    /// <summary>
     /// <see cref="YcLockboxConfigurationProvider" /> который вызвал исключение.
     /// </summary>
     public YcLockboxConfigurationProvider Provider { get; set; }

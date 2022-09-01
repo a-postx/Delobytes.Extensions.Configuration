@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-	<Version>0.2.0.0</Version>
+	<Version>1.0.0.0-alpha1</Version>
     <LangVersion>latest</LangVersion>
     <Authors>Алексей Якубин</Authors>
     <Company>Делобайты</Company>
@@ -17,6 +17,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>AWS;Amazon;SimpleSystemsManagement;Амазон;Yandex;YandexCloud;yandex-cloud;Lockbox;Яндекс;ЯндексОблако;яндекс.облако;Локбокс;configuration;конфигурация</PackageTags>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

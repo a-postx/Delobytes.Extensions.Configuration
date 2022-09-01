@@ -19,10 +19,7 @@ public static class ConfigurationBuilderExtensions
     /// <exception cref="ArgumentNullException">Аргумент недоступен.</exception>
     public static IConfigurationBuilder AddAwsAppConfigConfiguration(this IConfigurationBuilder builder, Action<AwsAppConfigConfigurationSource> configureSource)
     {
-        if (configureSource == null)
-        {
-            throw new ArgumentNullException(nameof(configureSource));
-        }
+        ArgumentNullException.ThrowIfNull(configureSource, nameof(configureSource));
 
         AwsAppConfigConfigurationSource source = new AwsAppConfigConfigurationSource();
         configureSource(source);
@@ -60,11 +57,8 @@ public static class ConfigurationBuilderExtensions
     /// <exception cref="ArgumentNullException">Аргумент недоступен.</exception>
     public static IConfigurationBuilder AddYandexCloudLockboxConfiguration(this IConfigurationBuilder builder, Action<YcLockboxConfigurationSource> configureSource)
     {
-        if (configureSource == null)
-        {
-            throw new ArgumentNullException(nameof(configureSource));
-        }
-        
+        ArgumentNullException.ThrowIfNull(configureSource, nameof(configureSource));
+
         YcLockboxConfigurationSource source = new YcLockboxConfigurationSource();
         configureSource(source);
 

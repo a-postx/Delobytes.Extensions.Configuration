@@ -12,7 +12,7 @@ namespace Delobytes.Extensions.Configuration.YandexCloudLockbox;
 
 internal class JwtTokenGenerator
 {
-    public JwtTokenGenerator(string serviceAccountId, string serviceAccountAuthorizedKeyId, string privateKey)
+    public JwtTokenGenerator(string serviceAccountId, string serviceAccountAuthorizedKeyId, string privateKey, string jwtTokenAudience)
     {
         if (string.IsNullOrEmpty(serviceAccountId))
         {
@@ -32,11 +32,13 @@ internal class JwtTokenGenerator
         _serviceAccountId = serviceAccountId;
         _serviceAccountAuthorizedKeyId = serviceAccountAuthorizedKeyId;
         _privateKey = privateKey;
+        _jwtTokenAudience = jwtTokenAudience;
     }
 
     private readonly string _serviceAccountId;
     private readonly string _serviceAccountAuthorizedKeyId;
     private readonly string _privateKey;
+    private readonly string _jwtTokenAudience; 
 
     internal string GetEncodedJwtToken()
     {
@@ -46,17 +48,22 @@ internal class JwtTokenGenerator
 
         Dictionary<string, object> payload = new Dictionary<string, object>()
         {
-            { "aud", "https://iam.api.cloud.yandex.net/iam/v1/tokens" },
+            { "aud", _jwtTokenAudience },
             { "iss", _serviceAccountId },
             { "iat", now },
             { "exp", now + 3600 }
         };
 
-        RsaPrivateCrtKeyParameters privateKeyParams;
+        RsaPrivateCrtKeyParameters? privateKeyParams;
 
         using (TextReader pemReader = new StringReader(_privateKey))
         {
             privateKeyParams = new PemReader(pemReader).ReadObject() as RsaPrivateCrtKeyParameters;
+        }
+
+        if (privateKeyParams == null)
+        {
+            throw new InvalidOperationException("RSA private key params is not available");
         }
 
 #pragma warning disable CA1416 // Platform compatibility checked

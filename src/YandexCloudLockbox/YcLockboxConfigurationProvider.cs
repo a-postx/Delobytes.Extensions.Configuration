@@ -23,20 +23,18 @@ public class YcLockboxConfigurationProvider : ConfigurationProvider
     /// <exception cref="ArgumentNullException">Аргумент не найден.</exception>
     public YcLockboxConfigurationProvider(YcLockboxConfigurationSource source)
     {
-        if (source == null)
-        {
-            throw new ArgumentNullException(nameof(source));
-        }
+        ArgumentNullException.ThrowIfNull(source, nameof(source));
 
         _optional = source.Optional;
         _secretId = source.SecretId;
         _path = source.Path;
         _pathSeparator = source.PathSeparator;
+        _iamHost = source.IamHost;
         _reloadPeriod = source.ReloadPeriod;
         _loadTimeout = source.LoadTimeout;
         _onLoadException = source.OnLoadException;
 
-        _tokenGenerator = new JwtTokenGenerator(source.ServiceAccountId, source.ServiceAccountAuthorizedKeyId, source.PrivateKey);
+        _tokenGenerator = new JwtTokenGenerator(source.ServiceAccountId, source.ServiceAccountAuthorizedKeyId, source.PrivateKey, source.JwtTokenAudience);
 
         ChangeToken.OnChange(() =>
         {
@@ -50,11 +48,12 @@ public class YcLockboxConfigurationProvider : ConfigurationProvider
 
     private readonly bool _optional;
     private readonly string _secretId;
-    private readonly string _path;
+    private readonly string? _path;
     private readonly char _pathSeparator;
+    private readonly string _iamHost;
     private readonly TimeSpan _reloadPeriod;
     private readonly TimeSpan _loadTimeout;
-    private readonly Action<YcLockboxExceptionContext> _onLoadException;
+    private readonly Action<YcLockboxExceptionContext>? _onLoadException;
 
     private readonly JwtTokenGenerator _tokenGenerator;
 
@@ -74,7 +73,7 @@ public class YcLockboxConfigurationProvider : ConfigurationProvider
         {
             using (CancellationTokenSource cts = new CancellationTokenSource(_loadTimeout))
             {
-                Dictionary<string, string> kvPairs = await GetAllKeyValuePairsAsync(cts.Token);
+                Dictionary<string, string>? kvPairs = await GetAllKeyValuePairsAsync(cts.Token);
 
                 if (kvPairs != null)
                 {
@@ -97,12 +96,7 @@ public class YcLockboxConfigurationProvider : ConfigurationProvider
 
             if (_onLoadException != null)
             {
-                YcLockboxExceptionContext exceptionContext = new YcLockboxExceptionContext
-                {
-                    Provider = this,
-                    Exception = ex,
-                    Reload = reload
-                };
+                YcLockboxExceptionContext exceptionContext = new YcLockboxExceptionContext(this, ex, reload);
 
                 _onLoadException(exceptionContext);
                 ignoreException = exceptionContext.Ignore;
@@ -118,7 +112,7 @@ public class YcLockboxConfigurationProvider : ConfigurationProvider
     private async Task<RepeatedField<Entry>> GetSecretAsync(string secretId, CancellationToken cancellationToken)
     {
         string encodedToken = _tokenGenerator.GetEncodedJwtToken();
-        Sdk sdk = new Sdk(new JwtCredentialsProvider(encodedToken));
+        Sdk sdk = new Sdk(new JwtCredentialsProvider(_iamHost, encodedToken));
 
         Payload payload = await sdk.Services.Lockbox.PayloadService
                 .GetAsync(new GetPayloadRequest { SecretId = secretId }, null, null, cancellationToken);
@@ -133,16 +127,16 @@ public class YcLockboxConfigurationProvider : ConfigurationProvider
         }
     }
 
-    private async Task<Dictionary<string, string>> GetAllKeyValuePairsAsync(CancellationToken cancellationToken)
+    private async Task<Dictionary<string, string>?> GetAllKeyValuePairsAsync(CancellationToken cancellationToken)
     {
-        Dictionary<string, string> result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
         RepeatedField<Entry> entries = await GetSecretAsync(_secretId, cancellationToken);
 
         if (entries.Count == 0)
         {
             return null;
         }
+
+        Dictionary<string, string> result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (Entry entry in entries)
         {
@@ -154,7 +148,7 @@ public class YcLockboxConfigurationProvider : ConfigurationProvider
 
                 if (!string.IsNullOrEmpty(_path) && keyPath.StartsWith(_path, StringComparison.OrdinalIgnoreCase))
                 {
-                    keyPath = keyPath.Substring(_path.Length).TrimStart(_pathSeparator);
+                    keyPath = keyPath[_path.Length..].TrimStart(_pathSeparator);
                 }
                 
                 keyPath = keyPath.Replace(_pathSeparator, ConfigurationKeyDelimiter);

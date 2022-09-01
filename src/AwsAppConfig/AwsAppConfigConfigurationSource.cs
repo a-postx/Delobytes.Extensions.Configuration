@@ -19,19 +19,19 @@ public class AwsAppConfigConfigurationSource : IConfigurationSource
     /// <summary>
     /// Имя приложения.
     /// </summary>
-    public string ApplicationName { get; set; }
+    public string ApplicationName { get; set; } = default!;
     /// <summary>
     /// Имя конфигурации.
     /// </summary>
-    public string ConfigurationName { get; set; }
+    public string ConfigurationName { get; set; } = default!;
     /// <summary>
     /// Имя среды.
     /// </summary>
-    public string EnvironmentName { get; set; }
+    public string EnvironmentName { get; set; } = default!;
     /// <summary>
     /// Идентификатор приложения, которое запрашивает конфигурацию.
     /// </summary>
-    public string ClientId { get; set; }
+    public string ClientId { get; set; } = default!;
     /// <summary>
     /// Признак того, что конфигурация является опциональной. Если стоит значение false,
     /// то при невозможности загрузки конфигурации будет вызвано исключение.
@@ -48,10 +48,9 @@ public class AwsAppConfigConfigurationSource : IConfigurationSource
     /// <summary>
     /// Региональная точка доступа.
     /// </summary>
-    public RegionEndpoint RegionEndpoint { get; set; }
-
+    public RegionEndpoint? RegionEndpoint { get; set; }
     /// <summary>
     /// Вызов, который будет запущен если произошло необработанное исключение при загрузке конфигурации.
     /// </summary>
-    public Action<AwsAppConfigExceptionContext> OnLoadException { get; set; }
+    public Action<AwsAppConfigExceptionContext>? OnLoadException { get; set; }
 }

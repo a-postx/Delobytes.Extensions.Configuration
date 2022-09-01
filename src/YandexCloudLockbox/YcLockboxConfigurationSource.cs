@@ -17,23 +17,23 @@ public class YcLockboxConfigurationSource : IConfigurationSource
     /// <summary>
     /// Идентификатор сервисной учётки.
     /// </summary>
-    public string ServiceAccountId { get; set; }
+    public string ServiceAccountId { get; set; } = default!;
     /// <summary>
     /// Идентификатор авторизованного ключа сервисной учётки.
     /// </summary>
-    public string ServiceAccountAuthorizedKeyId { get; set; }
+    public string ServiceAccountAuthorizedKeyId { get; set; } = default!;
     /// <summary>
     /// Приватный ключ авторизованного ключа сервисной учётки.
     /// </summary>
-    public string PrivateKey { get; set; }
+    public string PrivateKey { get; set; } = default!;
     /// <summary>
     /// Идентификатор секрета из которого необходимо взять элементы конфигурации.
     /// </summary>
-    public string SecretId { get; set; }
+    public string SecretId { get; set; } = default!;
     /// <summary>
     /// Префикс в ключах с которого будет начинаться формирование конфигурации.
     /// </summary>
-    public string Path { get; set; }
+    public string? Path { get; set; }
     /// <summary>
     /// Разделитель путей в иерархии параметров. Разделитель ":" является запрещённым
     /// символом в ключах локбокса, поэтому необходимо заменить его другим.
@@ -45,6 +45,14 @@ public class YcLockboxConfigurationSource : IConfigurationSource
     /// </summary>
     public bool Optional { get; set; }
     /// <summary>
+    /// Аудитория JWT-токена, который используется для запроса IAM-токена.
+    /// </summary>
+    public string JwtTokenAudience { get; set; } = "https://iam.api.cloud.yandex.net/iam/v1/tokens";
+    /// <summary>
+    /// Хост и порт, к которому производится подключение для запроса IAM-токена.
+    /// </summary>
+    public string IamHost { get; set; } = "iam.api.cloud.yandex.net:443";
+    /// <summary>
     /// Таймаут запроса загрузки конфигурации. По-умолчанию: 60 cекунд.
     /// </summary>
     public TimeSpan LoadTimeout { get; set; } = TimeSpan.FromSeconds(60);
@@ -55,5 +63,5 @@ public class YcLockboxConfigurationSource : IConfigurationSource
     /// <summary>
     /// Будет вызван, если произошло необработанное исключение при вызове загрузки конфигурации.
     /// </summary>
-    public Action<YcLockboxExceptionContext> OnLoadException { get; set; }
+    public Action<YcLockboxExceptionContext>? OnLoadException { get; set; }
 }

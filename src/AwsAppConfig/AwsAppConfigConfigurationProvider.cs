@@ -55,7 +55,7 @@ public class AwsAppConfigConfigurationProvider : ConfigurationProvider
     }
 
     private static string _awsConfigurationVersion = "0";
-    private static AmazonAppConfigClient _appConfigClient;
+    private readonly AmazonAppConfigClient _appConfigClient;
 
     private readonly string _environmentName;
     private readonly string _applicationName;
@@ -64,7 +64,7 @@ public class AwsAppConfigConfigurationProvider : ConfigurationProvider
     private readonly bool _optional;
     private readonly TimeSpan _reloadPeriod;
     private readonly TimeSpan _loadTimeout;
-    private readonly Action<AwsAppConfigExceptionContext> _onLoadException;
+    private readonly Action<AwsAppConfigExceptionContext>? _onLoadException;
 
     /// <inheritdoc />
     public override void Load()
@@ -80,7 +80,7 @@ public class AwsAppConfigConfigurationProvider : ConfigurationProvider
         {
             using (CancellationTokenSource cts = new CancellationTokenSource(_loadTimeout))
             {
-                Dictionary<string, string> kvPairs = await GetAllKeyValuePairsAsync(cts.Token);
+                Dictionary<string, string>? kvPairs = await GetAllKeyValuePairsAsync(cts.Token);
 
                 if (kvPairs != null)
                 {
@@ -103,12 +103,7 @@ public class AwsAppConfigConfigurationProvider : ConfigurationProvider
 
             if (_onLoadException != null)
             {
-                AwsAppConfigExceptionContext exceptionContext = new AwsAppConfigExceptionContext
-                {
-                    Provider = this,
-                    Exception = ex,
-                    Reload = reload
-                };
+                AwsAppConfigExceptionContext exceptionContext = new AwsAppConfigExceptionContext(this, ex, reload);
 
                 _onLoadException(exceptionContext);
                 ignoreException = exceptionContext.Ignore;
@@ -121,7 +116,7 @@ public class AwsAppConfigConfigurationProvider : ConfigurationProvider
         }
     }
 
-    private async Task<Dictionary<string, string>> GetAllKeyValuePairsAsync(CancellationToken cancellationToken)
+    private async Task<Dictionary<string, string>?> GetAllKeyValuePairsAsync(CancellationToken cancellationToken)
     {
         GetConfigurationRequest request = new GetConfigurationRequest
         {
@@ -150,7 +145,7 @@ public class AwsAppConfigConfigurationProvider : ConfigurationProvider
     {
         Dictionary<string, string> result = new Dictionary<string, string>();
             
-        string json = null;
+        string? json = null;
 
         using (StreamReader reader = new StreamReader(stream))
         {
@@ -167,7 +162,7 @@ public class AwsAppConfigConfigurationProvider : ConfigurationProvider
 
     private Dictionary<string, string> GetJsonAsConfiguration(string json)
     {
-        IEnumerable<(string Path, string P)> GetLeaves(string path, JsonProperty p)
+        IEnumerable<(string Path, string P)> GetLeaves(string? path, JsonProperty p)
         {
             return p.Value.ValueKind != JsonValueKind.Object
                                 ? new[] { (Path: path == null ? p.Name : path + ":" + p.Name, p.Value.ToString()) }
