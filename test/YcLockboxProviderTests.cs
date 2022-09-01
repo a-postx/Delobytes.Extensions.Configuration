@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,8 +6,6 @@ namespace Delobytes.Extensions.Configuration.Tests;
 
 public class YcLockboxProviderTests
 {
-    private static readonly string RequestPath = "/json";
-
     #region Infrastructure
     private string GetPrivateKey()
     {
